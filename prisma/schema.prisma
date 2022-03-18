@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  token String?
+  email String @unique
+  username String @unique
+  password String
+  role Role @default(USER)
+  firstName String @map("first_name")
+  lastName String @map("last_name")
+  carts Cart[]
+  sales Sale[]
+  reactions UserReaction[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String @unique
+  size SizeProduct @default(S)
+  price Float
+  availableStock Int
+  description String
+  active Boolean @default(true)
+  Images ProductImage[]
+  reactions UserReaction[]
+  cart Cart[]
+  saleDetail SaleDetail[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("products")
+}
+
+enum SizeProduct{
+  S
+  M
+  L
+  XL
+}
+
+model ProductImage {
+  id Int @id @default(autoincrement())
+  urlImage String @map("url_image")
+  product Product @relation(fields: [productId] , references: [id])
+  productId Int @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("product_images")
+}
+
+model UserReaction{
+  id Int @id @default(autoincrement())
+  product Product @relation(fields: [productId] , references: [id])
+  productId Int @map("product_id")
+  user User @relation(fields: [userId], references: [id])
+  userId Int @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("user_reactions")
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+  product Product @relation(fields: [productId] , references: [id])
+  productId Int @map("product_id")
+  user User @relation(fields: [userId], references: [id])
+  userId Int @map("user_id")
+  price Float
+  quantity Int
+  totalAmount Float @map("total_amount")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("carts")
+}
+
+model Sale {
+  id Int @id @default(autoincrement())
+  correlative String
+  user User @relation(fields: [userId], references: [id])
+  userId Int @map("user_id")
+  date DateTime
+  totalAmount Float @map("total_amount")
+  details SaleDetail[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("sales")
+}
+
+model SaleDetail {
+  id Int @id @default(autoincrement())
+  product Product @relation(fields: [productId] , references: [id])
+  productId Int @map("product_id")
+  price Float
+  quantity Int
+  subtotal Float
+  sale Sale @relation(fields: [saleId], references: [id])
+  saleId Int @map("sale_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("sale_details")
+}
