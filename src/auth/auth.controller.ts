@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/utils/decorator/public.decorator';
 import { Roles } from 'src/utils/decorator/roles.decorator';
 import { Role } from 'src/utils/enums/role.enum';
@@ -14,8 +14,8 @@ export class AuthController {
   @ApiTags('User')
   @Public()
   @Post('login')
-  async login(@Request() req: LoginDto) {
-    return this.authService.login(req);
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @ApiTags('User')
@@ -26,6 +26,7 @@ export class AuthController {
   }
 
   @ApiTags('Manager')
+  @ApiBearerAuth()
   @Roles(Role.Admin)
   @Post('register-admin')
   async createUserAdmin(@Body() userDto: UserDto) {

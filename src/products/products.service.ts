@@ -119,4 +119,17 @@ export class ProductsService {
       throw new InternalServerErrorException(err);
     }
   }
+
+  async uploadsImages(productId: number, images: Array<Express.Multer.File>) {
+    const productsImages = images.map((image) => {
+      return {
+        urlImage: image.destination + '/' + image.filename,
+        productId: productId,
+      };
+    });
+
+    return await this.prismaService.productImage.createMany({
+      data: productsImages,
+    });
+  }
 }

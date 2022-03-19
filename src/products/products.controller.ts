@@ -8,6 +8,8 @@ import {
   Post,
   Put,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Public } from 'src/utils/decorator/public.decorator';
@@ -18,7 +20,18 @@ import { ProductSearchDto } from './dto/product-search.dto';
 import { Roles } from 'src/utils/decorator/roles.decorator';
 import { PaginationPrimaDto } from './dto/pagination-prisma.dto';
 import { ProductoIdParamDto } from './dto/product-id-param.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { FilesUploadDto } from './dto/file-upload.dto';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('product')
 export class ProductsController {
@@ -64,6 +77,7 @@ export class ProductsController {
 
   @ApiTags('Manager')
   @Roles(Role.Admin)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'The record has been successfully created.',
@@ -74,6 +88,7 @@ export class ProductsController {
   }
 
   @ApiTags('Manager')
+  @ApiBearerAuth()
   @Roles(Role.Admin)
   @Patch(':id')
   @ApiResponse({
@@ -88,6 +103,7 @@ export class ProductsController {
   }
 
   @ApiTags('Manager')
+  @ApiBearerAuth()
   @Roles(Role.Admin)
   @Delete(':id')
   @ApiResponse({
@@ -99,6 +115,7 @@ export class ProductsController {
   }
 
   @ApiTags('Manager')
+  @ApiBearerAuth()
   @Roles(Role.Admin)
   @Put('disable/:id')
   @ApiResponse({
@@ -107,5 +124,35 @@ export class ProductsController {
   })
   async disableProduct(@Param() { id }: ProductoIdParamDto) {
     return await this.productService.disableProduct(id);
+  }
+
+  @Post('uploads/:productId')
+  //@ApiBearerAuth()
+  @Public()
+  @UseInterceptors(
+    FilesInterceptor('images', 10, {
+      storage: diskStorage({
+        destination: './products-images',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Images of product',
+    type: FilesUploadDto,
+  })
+  @ApiQuery({ name: 'productId' })
+  async uploadsImages(
+    @UploadedFiles() images: Array<Express.Multer.File>,
+    @Query('productId') { productId },
+  ) {
+    return await this.productService.uploadsImages(productId,images);
   }
 }

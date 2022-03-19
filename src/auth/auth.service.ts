@@ -1,6 +1,8 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -12,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import UserAlreadyExistsException from './exceptions/user-already-exists.exception';
 import { Role } from 'src/utils/enums/role.enum';
 import { PayloadJWTDto } from 'src/jwt/dto/payload-jwt.dto';
+import WrongPasswordException from './exceptions/user-not-found.exception';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +26,12 @@ export class AuthService {
   async login(request: LoginDto) {
     const user = await this.findUser(request);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new NotFoundException('User not found');
+    }
+    const isMatch = await bcrypt.compare(request.password, user.password);
+
+    if (!isMatch) {
+      throw new WrongPasswordException();
     }
 
     const payload: PayloadJWTDto = {
@@ -101,7 +109,6 @@ export class AuthService {
     return this.prismaService.user.findFirst({
       where: {
         username: loginDto.username,
-        password: loginDto.password,
       },
     });
   }
