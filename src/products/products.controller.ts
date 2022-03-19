@@ -9,7 +9,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
+import { ProductService } from './products.service';
 import { Public } from 'src/utils/decorator/public.decorator';
 import { PaginationDto } from './dto/pagination.dto';
 import { Role } from 'src/utils/enums/role.enum';
