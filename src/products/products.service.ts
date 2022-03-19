@@ -5,7 +5,7 @@ import { ProductDto } from './dto/product.dto';
 import { ProductNotFoundException } from './exceptions/product-not-found.exception';
 
 @Injectable()
-export class ProductService {
+export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findOne(productId: number) {

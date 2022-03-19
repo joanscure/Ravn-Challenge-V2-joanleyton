@@ -4,10 +4,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtGlobalModule } from './jwt/jwt.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { ProductModule } from './products/products.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ProductModule, JwtGlobalModule],
+  imports: [PrismaModule, AuthModule, ProductsModule, JwtGlobalModule],
   controllers: [AppController],
   providers: [AppService],
 })

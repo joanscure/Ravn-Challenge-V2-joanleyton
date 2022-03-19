@@ -9,7 +9,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ProductService } from './products.service';
+import { ProductsService } from './products.service';
 import { Public } from 'src/utils/decorator/public.decorator';
 import { PaginationDto } from './dto/pagination.dto';
 import { Role } from 'src/utils/enums/role.enum';
@@ -20,10 +20,9 @@ import { PaginationPrimaDto } from './dto/pagination-prisma.dto';
 import { ProductoIdParamDto } from './dto/product-id-param.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-//@ApiTags('Product')
 @Controller('product')
-export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+export class ProductsController {
+  constructor(private readonly productService: ProductsService) {}
 
   @ApiTags('Product')
   @Public()
