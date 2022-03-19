@@ -32,15 +32,18 @@ enum Role {
   ADMIN
 }
 
+
 model Product {
   id Int @id @default(autoincrement())
   name String @unique
   size SizeProduct @default(S)
   price Float
   availableStock Int
-  description String
+  description String?
   active Boolean @default(true)
-  Images ProductImage[]
+  category Category @relation(fields: [categoryId] , references: [id])
+  categoryId Int @map("category_id")
+  images ProductImage[]
   reactions UserReaction[]
   cart Cart[]
   saleDetail SaleDetail[]
@@ -48,6 +51,16 @@ model Product {
   updatedAt DateTime? @updatedAt @map("updated_at")
   @@map("products")
 }
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String @unique
+  products Product[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("categories")
+}
+
 
 enum SizeProduct{
   S
