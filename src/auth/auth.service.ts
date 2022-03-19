@@ -7,11 +7,11 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.services';
 import { LoginDto } from './dto/login.dto';
-import { PayloadJWTDto } from './dto/PayloadJWT.dto';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import UserAlreadyExistsException from './exceptions/user-already-exists.exception';
 import { Role } from 'src/utils/enums/role.enum';
+import { PayloadJWTDto } from 'src/jwt/dto/payload-jwt.dto';
 
 @Injectable()
 export class AuthService {
@@ -43,13 +43,13 @@ export class AuthService {
 
   async registerUser(data: UserDto, role: Role = Role.User) {
     try {
-      const userExistsByEmail = this.checkUserExistsByEmail(data.email);
+      const userExistsByEmail = await this.checkUserExistsByEmail(data.email);
 
       if (userExistsByEmail) {
         throw new UserAlreadyExistsException('email');
       }
 
-      const userExistsByUsername = this.checkUserExistsByUsername(
+      const userExistsByUsername = await this.checkUserExistsByUsername(
         data.username,
       );
 
@@ -71,7 +71,7 @@ export class AuthService {
 
       return user;
     } catch (err) {
-      throw new InternalServerErrorException('error');
+      throw new InternalServerErrorException(err);
     }
   }
 
@@ -82,7 +82,8 @@ export class AuthService {
       },
     });
 
-    return !!user;
+    if (user) return true;
+    return false;
   }
 
   async checkUserExistsByUsername(username: string) {
@@ -92,7 +93,8 @@ export class AuthService {
       },
     });
 
-    return !!user;
+    if (user) return true;
+    return false;
   }
 
   async findUser(loginDto: LoginDto): Promise<User | undefined> {
