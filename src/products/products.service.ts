@@ -32,7 +32,7 @@ export class ProductsService {
   }
 
   async getByCategory(
-    codeCategory: string,
+    categoryId: number,
     productName: string,
     paginationDto: PaginationPrimaDto,
   ) {
@@ -41,7 +41,7 @@ export class ProductsService {
       take: paginationDto.take,
       where: {
         category: {
-          code: codeCategory,
+          id: categoryId,
         },
         name: {
           contains: productName,

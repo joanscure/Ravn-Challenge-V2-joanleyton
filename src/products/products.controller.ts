@@ -24,14 +24,14 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
-  @ApiTags('Product')
+  @ApiTags('User')
   @Public()
   @Get(':id')
   async findOne(@Param() { id }: ProductoIdParamDto) {
     return await this.productService.findOne(id);
   }
 
-  @ApiTags('Product')
+  @ApiTags('User')
   @Public()
   @Get('all')
   async getAll(@Query() { page = 0, itemsPerPage = 10 }: PaginationDto) {
@@ -43,7 +43,7 @@ export class ProductsController {
     return await this.productService.findAll(paginatioPrismaDto);
   }
 
-  @ApiTags('Product')
+  @ApiTags('User')
   @Public()
   @Get(':categoryId/:productName')
   async getByCategory(
@@ -62,7 +62,7 @@ export class ProductsController {
     );
   }
 
-  @ApiTags('Admin user')
+  @ApiTags('Manager')
   @Roles(Role.Admin)
   @ApiResponse({
     status: 200,
@@ -73,9 +73,13 @@ export class ProductsController {
     return await this.productService.create(productDto);
   }
 
-  @ApiTags('Admin user')
+  @ApiTags('Manager')
   @Roles(Role.Admin)
   @Patch(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The record has been successfully updated.',
+  })
   async update(
     @Param() { id }: ProductoIdParamDto,
     @Body() productDto: ProductDto,
@@ -83,16 +87,24 @@ export class ProductsController {
     return await this.productService.update(id, productDto);
   }
 
-  @ApiTags('Admin user')
+  @ApiTags('Manager')
   @Roles(Role.Admin)
   @Delete(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The record has been successfully deleted.',
+  })
   async remove(@Param() { id }: ProductoIdParamDto) {
     return await this.productService.remove(id);
   }
 
-  @ApiTags('Admin user')
+  @ApiTags('Manager')
   @Roles(Role.Admin)
   @Put('disable/:id')
+  @ApiResponse({
+    status: 200,
+    description: 'The record has been successfully disabled.',
+  })
   async disableProduct(@Param() { id }: ProductoIdParamDto) {
     return await this.productService.disableProduct(id);
   }

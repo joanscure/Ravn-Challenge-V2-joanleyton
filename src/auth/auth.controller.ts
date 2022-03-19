@@ -25,7 +25,7 @@ export class AuthController {
     return await this.authService.registerUser(userDto);
   }
 
-  @ApiTags('Admin user')
+  @ApiTags('Manager')
   @Roles(Role.Admin)
   @Post('register-admin')
   async createUserAdmin(@Body() userDto: UserDto) {

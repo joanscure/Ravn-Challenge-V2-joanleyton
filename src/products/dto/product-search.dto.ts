@@ -7,7 +7,7 @@ export class ProductSearchDto {
   })
   @IsNumberString()
   @IsNotEmpty()
-  categoryId: string;
+  categoryId: number;
 
   @ApiProperty({
     required: false,
