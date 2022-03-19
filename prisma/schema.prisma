@@ -20,7 +20,7 @@ model User {
   firstName String @map("first_name")
   lastName String @map("last_name")
   carts Cart[]
-  sales Sale[]
+  orders Order[]
   reactions UserReaction[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
@@ -46,7 +46,7 @@ model Product {
   images ProductImage[]
   reactions UserReaction[]
   cart Cart[]
-  saleDetail SaleDetail[]
+  orderDetail OrderDetail[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   @@map("products")
@@ -104,29 +104,28 @@ model Cart {
   @@map("carts")
 }
 
-model Sale {
+model Order {
   id Int @id @default(autoincrement())
-  correlative String
   user User @relation(fields: [userId], references: [id])
   userId Int @map("user_id")
   date DateTime
   totalAmount Float @map("total_amount")
-  details SaleDetail[]
+  details OrderDetail[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
-  @@map("sales")
+  @@map("orders")
 }
 
-model SaleDetail {
+model OrderDetail {
   id Int @id @default(autoincrement())
   product Product @relation(fields: [productId] , references: [id])
   productId Int @map("product_id")
   price Float
   quantity Int
   subtotal Float
-  sale Sale @relation(fields: [saleId], references: [id])
-  saleId Int @map("sale_id")
+  order Order @relation(fields: [orderId], references: [id])
+  orderId Int @map("order_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
-  @@map("sale_details")
+  @@map("order_details")
 }
