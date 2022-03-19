@@ -13,6 +13,7 @@ import UserAlreadyExistsException from './exceptions/user-already-exists.excepti
 import { Role } from '../utils/enums/role.enum';
 import { PayloadJWTDto } from '../jwt/dto/payload-jwt.dto';
 import WrongPasswordException from './exceptions/user-not-found.exception';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const isMatch = await bcrypt.compare(request.password, user.password);
+    const isMatch = await this.compareHash(request, user);
 
     if (!isMatch) {
       throw new WrongPasswordException();
@@ -47,22 +48,21 @@ export class AuthService {
     };
   }
 
-  async registerUser(data: UserDto, role: Role = Role.User) {
+  async registerUser(data: UserDto, role: Role = Role.User): Promise<UserDto> {
+    const userExistsByEmail = await this.checkUserExistsByEmail(data.email);
+
+    if (userExistsByEmail) {
+      throw new UserAlreadyExistsException('email');
+    }
+
+    const userExistsByUsername = await this.checkUserExistsByUsername(
+      data.username,
+    );
+
+    if (userExistsByUsername) {
+      throw new UserAlreadyExistsException('username');
+    }
     try {
-      const userExistsByEmail = await this.checkUserExistsByEmail(data.email);
-
-      if (userExistsByEmail) {
-        throw new UserAlreadyExistsException('email');
-      }
-
-      const userExistsByUsername = await this.checkUserExistsByUsername(
-        data.username,
-      );
-
-      if (userExistsByUsername) {
-        throw new UserAlreadyExistsException('username');
-      }
-
       const hashedPassword = await bcrypt.hash(data.password, 10);
 
       const payload = {
@@ -75,13 +75,13 @@ export class AuthService {
         data: payload,
       });
 
-      return user;
+      return plainToInstance(UserDto, user);
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
   }
 
-  async checkUserExistsByEmail(email: string) {
+  async checkUserExistsByEmail(email: string): Promise<boolean> {
     const user = await this.prismaService.user.findUnique({
       where: {
         email: email,
@@ -92,7 +92,7 @@ export class AuthService {
     return false;
   }
 
-  async checkUserExistsByUsername(username: string) {
+  async checkUserExistsByUsername(username: string): Promise<boolean> {
     const user = await this.prismaService.user.findUnique({
       where: {
         username: username,
@@ -103,16 +103,16 @@ export class AuthService {
     return false;
   }
 
-  async findUser(loginDto: LoginDto): Promise<User | undefined> {
-    return this.prismaService.user.findFirst({
+  async findUser(loginDto: LoginDto) {
+    return await this.prismaService.user.findFirst({
       where: {
         username: loginDto.username,
       },
     });
   }
 
-  async updateToken(user: User, token: string) {
-    return await this.prismaService.user.update({
+  async updateToken(user: User, token: string): Promise<void> {
+    await this.prismaService.user.update({
       where: {
         id: user.id,
       },
@@ -120,5 +120,8 @@ export class AuthService {
         token: token,
       },
     });
+  }
+  async compareHash(request, user): Promise<boolean> {
+    return await bcrypt.compare(request.password, user.password);
   }
 }
