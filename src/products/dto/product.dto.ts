@@ -19,12 +19,15 @@ export class ProductDto {
   })
   size: SizeProduct;
 
-  @ApiProperty()
+  @ApiProperty({
+    minimum: 0,
+  })
   @Min(0)
   price: number;
 
   @ApiProperty({
     required: false,
+    minimum: 0,
   })
   @IsInt()
   @Min(0)
@@ -32,6 +35,7 @@ export class ProductDto {
 
   @ApiProperty({
     required: false,
+    default: '',
   })
   description?: string;
 

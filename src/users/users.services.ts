@@ -98,7 +98,7 @@ export class UsersServices {
     });
 
     return {
-      message: 'Successful sale',
+      message: 'Successful order',
     };
   }
 

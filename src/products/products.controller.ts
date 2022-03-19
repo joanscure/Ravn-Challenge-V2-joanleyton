@@ -18,7 +18,6 @@ import { Role } from 'src/utils/enums/role.enum';
 import { ProductDto } from './dto/product.dto';
 import { ProductSearchDto } from './dto/product-search.dto';
 import { Roles } from 'src/utils/decorator/roles.decorator';
-import { PaginationPrimaDto } from './dto/pagination-prisma.dto';
 import { ProductoIdParamDto } from './dto/product-id-param.dto';
 import {
   ApiBearerAuth,
@@ -48,12 +47,7 @@ export class ProductsController {
   @Public()
   @Get('all')
   async getAll(@Query() { page = 0, itemsPerPage = 10 }: PaginationDto) {
-    const paginatioPrismaDto: PaginationPrimaDto = {
-      skip: page * itemsPerPage,
-      take: itemsPerPage,
-    };
-
-    return await this.productService.findAll(paginatioPrismaDto);
+    return await this.productService.findAll({ page, itemsPerPage });
   }
 
   @ApiTags('User')
@@ -63,16 +57,10 @@ export class ProductsController {
     @Param() { categoryId, productName = '' }: ProductSearchDto,
     @Query() { page = 0, itemsPerPage = 10 }: PaginationDto,
   ) {
-    const paginatioPrismaDto: PaginationPrimaDto = {
-      skip: page * itemsPerPage,
-      take: itemsPerPage,
-    };
-
-    return await this.productService.getByCategory(
-      categoryId,
-      productName,
-      paginatioPrismaDto,
-    );
+    return await this.productService.getByCategory(categoryId, productName, {
+      page,
+      itemsPerPage,
+    });
   }
 
   @ApiTags('Manager')
@@ -126,14 +114,16 @@ export class ProductsController {
     return await this.productService.disableProduct(id);
   }
 
+  @ApiTags('Manager')
   @Post('uploads/:productId')
   //@ApiBearerAuth()
+  //@Roles(Role.Admin)
   @Public()
   @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({
         destination: './products-images',
-        filename: (req, file, cb) => {
+        filename: (_req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
             .map(() => Math.round(Math.random() * 16).toString(16))
@@ -153,6 +143,6 @@ export class ProductsController {
     @UploadedFiles() images: Array<Express.Multer.File>,
     @Query('productId') { productId },
   ) {
-    return await this.productService.uploadsImages(productId,images);
+    return await this.productService.uploadsImages(productId, images);
   }
 }

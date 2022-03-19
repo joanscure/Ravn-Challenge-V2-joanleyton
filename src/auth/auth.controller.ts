@@ -1,8 +1,8 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/utils/decorator/public.decorator';
-import { Roles } from 'src/utils/decorator/roles.decorator';
-import { Role } from 'src/utils/enums/role.enum';
+import { Public } from '../utils/decorator/public.decorator';
+import { Roles } from '../utils/decorator/roles.decorator';
+import { Role } from '../utils/enums/role.enum';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { UserDto } from './dto/user.dto';

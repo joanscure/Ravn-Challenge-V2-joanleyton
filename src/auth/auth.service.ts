@@ -1,26 +1,24 @@
 import {
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.services';
+import { PrismaService } from '../prisma/prisma.services';
 import { LoginDto } from './dto/login.dto';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import UserAlreadyExistsException from './exceptions/user-already-exists.exception';
-import { Role } from 'src/utils/enums/role.enum';
-import { PayloadJWTDto } from 'src/jwt/dto/payload-jwt.dto';
+import { Role } from '../utils/enums/role.enum';
+import { PayloadJWTDto } from '../jwt/dto/payload-jwt.dto';
 import WrongPasswordException from './exceptions/user-not-found.exception';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async login(request: LoginDto) {

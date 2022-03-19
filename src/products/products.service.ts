@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.services';
-import { PaginationPrimaDto } from './dto/pagination-prisma.dto';
+import { PaginationDto } from './dto/pagination.dto';
 import { ProductDto } from './dto/product.dto';
 import { ProductNotFoundException } from './exceptions/product-not-found.exception';
 
@@ -20,10 +20,10 @@ export class ProductsService {
     });
   }
 
-  async findAll(paginationDto: PaginationPrimaDto) {
+  async findAll(paginationDto: PaginationDto) {
     return await this.prismaService.product.findMany({
-      skip: paginationDto.skip,
-      take: paginationDto.take,
+      skip: paginationDto.page * paginationDto.itemsPerPage,
+      take: paginationDto.itemsPerPage,
       include: {
         images: true,
         category: true,
@@ -34,11 +34,11 @@ export class ProductsService {
   async getByCategory(
     categoryId: number,
     productName: string,
-    paginationDto: PaginationPrimaDto,
+    paginationDto: PaginationDto,
   ) {
     return await this.prismaService.product.findMany({
-      skip: paginationDto.skip,
-      take: paginationDto.take,
+      skip: paginationDto.page * paginationDto.itemsPerPage,
+      take: paginationDto.itemsPerPage,
       where: {
         category: {
           id: categoryId,
@@ -121,15 +121,19 @@ export class ProductsService {
   }
 
   async uploadsImages(productId: number, images: Array<Express.Multer.File>) {
-    const productsImages = images.map((image) => {
-      return {
-        urlImage: image.destination + '/' + image.filename,
-        productId: productId,
-      };
-    });
+    try {
+      const productsImages = images.map((image) => {
+        return {
+          urlImage: image.destination + '/' + image.filename,
+          productId: productId,
+        };
+      });
 
-    return await this.prismaService.productImage.createMany({
-      data: productsImages,
-    });
+      return await this.prismaService.productImage.createMany({
+        data: productsImages,
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
   }
 }
