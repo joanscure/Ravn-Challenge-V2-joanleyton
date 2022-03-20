@@ -1,7 +1,14 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.services';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { PrismaService } from '../prisma/prisma.services';
 import { PaginationDto } from './dto/pagination.dto';
+import { ProductResponseDto } from './dto/product-response.dto';
 import { ProductDto } from './dto/product.dto';
+import ProductAlreadyExistsException from './exceptions/product-already-exists.exception';
 import { ProductNotFoundException } from './exceptions/product-not-found.exception';
 
 @Injectable()
@@ -9,19 +16,46 @@ export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findOne(productId: number) {
-    return await this.prismaService.product.findUnique({
+    const product = await this.prismaService.product.findFirst({
       where: {
         id: productId,
+        active: true,
       },
       include: {
         images: true,
         category: true,
       },
     });
+
+    if (!product) throw new NotFoundException('Product not found');
+
+    return plainToInstance(ProductResponseDto, product);
+  }
+
+  async existProduct(productId: number): Promise<boolean> {
+    const product = await this.prismaService.product.findFirst({
+      where: {
+        id: productId,
+      },
+    });
+
+    return !!product;
+  }
+
+  async existsOneByName(productName: string): Promise<boolean> {
+    if (!productName.length) return false;
+
+    const product = await this.prismaService.product.findFirst({
+      where: {
+        name: productName,
+      },
+    });
+
+    return !!product;
   }
 
   async findAll(paginationDto: PaginationDto) {
-    return await this.prismaService.product.findMany({
+    const arrayProducts = await this.prismaService.product.findMany({
       skip: paginationDto.page * paginationDto.itemsPerPage,
       take: paginationDto.itemsPerPage,
       include: {
@@ -29,6 +63,7 @@ export class ProductsService {
         category: true,
       },
     });
+    return  arrayProducts;
   }
 
   async getByCategory(
@@ -43,6 +78,7 @@ export class ProductsService {
         category: {
           id: categoryId,
         },
+        active: true,
         name: {
           contains: productName,
           mode: 'insensitive',
@@ -58,35 +94,51 @@ export class ProductsService {
     const availableStock = productDto.availableStock ?? 0;
     const payload = { ...productDto, active: true, availableStock };
 
-    return await this.prismaService.product.create({
-      data: payload,
-    });
+    const existsProduct = await this.existsOneByName(productDto.name);
+    if (existsProduct) throw new ProductAlreadyExistsException('name');
+
+    try {
+      return await this.prismaService.product.create({
+        data: payload,
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
   }
 
   async update(productId: number, productDto: ProductDto) {
+    const product = await this.existProduct(productId);
+
+    if (!product) throw new ProductNotFoundException(productDto.name);
+
     try {
-      const product = await this.findOne(productId);
-
-      if (!product) throw new ProductNotFoundException(productDto.name);
-
       const productUpdate = await this.prismaService.product.update({
         where: {
           id: productId,
         },
-        data: productDto,
+        data: {
+          name: productDto.name,
+          size: productDto.size,
+          price: productDto.price,
+          availableStock: productDto.availableStock,
+          description: productDto.description,
+          categoryId: productDto.categoryId,
+        },
       });
+
       return productUpdate;
     } catch (err) {
-      throw new InternalServerErrorException(err);
+      console.log('err :>> ', err);
+      throw new InternalServerErrorException(err.message);
     }
   }
 
   async remove(productId: number) {
+    const product = await this.existProduct(productId);
+
+    if (!product) throw new ProductNotFoundException();
+
     try {
-      const product = await this.findOne(productId);
-
-      if (!product) throw new ProductNotFoundException();
-
       const productDelete = this.prismaService.product.delete({
         where: {
           id: productId,
@@ -95,16 +147,16 @@ export class ProductsService {
 
       return productDelete;
     } catch (err) {
-      throw new InternalServerErrorException(err);
+      throw new InternalServerErrorException(err.message);
     }
   }
 
   async disableProduct(productId: number) {
+    const product = await this.findOne(productId);
+
+    if (!product) throw new ProductNotFoundException();
+
     try {
-      const product = await this.findOne(productId);
-
-      if (!product) throw new ProductNotFoundException();
-
       const productDisabled = this.prismaService.product.update({
         where: {
           id: productId,
@@ -116,24 +168,24 @@ export class ProductsService {
 
       return productDisabled;
     } catch (err) {
-      throw new InternalServerErrorException(err);
+      throw new InternalServerErrorException(err.message);
     }
   }
 
   async uploadsImages(productId: number, images: Array<Express.Multer.File>) {
-    try {
-      const productsImages = images.map((image) => {
-        return {
-          urlImage: image.destination + '/' + image.filename,
-          productId: productId,
-        };
-      });
+    const productsImages = images.map((image) => {
+      return {
+        urlImage: image.destination + '/' + image.filename,
+        productId: productId,
+      };
+    });
 
+    try {
       return await this.prismaService.productImage.createMany({
         data: productsImages,
       });
     } catch (err) {
-      throw new InternalServerErrorException(err);
+      throw new InternalServerErrorException(err.message);
     }
   }
 }

@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -12,12 +14,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Public } from 'src/utils/decorator/public.decorator';
-import { PaginationDto } from './dto/pagination.dto';
-import { Role } from 'src/utils/enums/role.enum';
+import { Public } from '../utils/decorator/public.decorator';
+import { Role } from '../utils/enums/role.enum';
 import { ProductDto } from './dto/product.dto';
-import { ProductSearchDto } from './dto/product-search.dto';
-import { Roles } from 'src/utils/decorator/roles.decorator';
+import { Roles } from '../utils/decorator/roles.decorator';
 import { ProductoIdParamDto } from './dto/product-id-param.dto';
 import {
   ApiBearerAuth,
@@ -37,25 +37,37 @@ export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
   @ApiTags('User')
+  @Get('find/:id')
   @Public()
-  @Get(':id')
-  async findOne(@Param() { id }: ProductoIdParamDto) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.productService.findOne(id);
   }
 
   @ApiTags('User')
-  @Public()
   @Get('all')
-  async getAll(@Query() { page = 0, itemsPerPage = 10 }: PaginationDto) {
+  @Public()
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'itemsPerPage', required: false })
+  async getAll(
+    @Query('page', new DefaultValuePipe(0), ParseIntPipe) page?: number,
+    @Query('itemsPerPage', new DefaultValuePipe(10), ParseIntPipe)
+    itemsPerPage?: number,
+  ) {
     return await this.productService.findAll({ page, itemsPerPage });
   }
 
   @ApiTags('User')
+  @Get('c/:categoryId')
   @Public()
-  @Get(':categoryId/:productName')
+  @ApiQuery({ name: 'productName', required: false })
+  @ApiQuery({ name: 'itemsPerPage', required: false })
+  @ApiQuery({ name: 'page', required: false })
   async getByCategory(
-    @Param() { categoryId, productName = '' }: ProductSearchDto,
-    @Query() { page = 0, itemsPerPage = 10 }: PaginationDto,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+    @Query('productName', new DefaultValuePipe('')) productName?: string,
+    @Query('page', new DefaultValuePipe(0), ParseIntPipe) page?: number,
+    @Query('itemsPerPage', new DefaultValuePipe(10), ParseIntPipe)
+    itemsPerPage?: number,
   ) {
     return await this.productService.getByCategory(categoryId, productName, {
       page,
@@ -138,10 +150,9 @@ export class ProductsController {
     description: 'Images of product',
     type: FilesUploadDto,
   })
-  @ApiQuery({ name: 'productId' })
   async uploadsImages(
     @UploadedFiles() images: Array<Express.Multer.File>,
-    @Query('productId') { productId },
+    @Query('productId', ParseIntPipe) productId: number,
   ) {
     return await this.productService.uploadsImages(productId, images);
   }
