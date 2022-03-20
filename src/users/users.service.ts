@@ -1,11 +1,18 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cart } from '@prisma/client';
 import { PayloadJWTDto } from '../jwt/dto/payload-jwt.dto';
 import { AddCartDto } from './dto/add-cart.dto';
 import { prisma } from '../prisma/prisma';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class UsersService {
+  constructor(private readonly productsService: ProductsService) {}
+
   async likeProduct(id: number, productId: number) {
     const alreadyReacted = await this.existsReaction(id, productId);
 
@@ -37,9 +44,13 @@ export class UsersService {
     const cartProduct = await prisma.cart.findFirst({
       where: {
         userId: id,
-        productId: addCartDto.productId,
+        productId: Number.parseInt(addCartDto.productId, 10),
       },
     });
+    const product = await this.productsService.existProduct(
+      Number.parseInt(addCartDto.productId, 10),
+    );
+    if (!product) throw new NotFoundException('product not found');
 
     await this.registerToCart(id, cartProduct, addCartDto);
 
@@ -62,7 +73,7 @@ export class UsersService {
       await prisma.cart.create({
         data: {
           userId: id,
-          productId: addCartDto.productId,
+          productId: Number.parseInt(addCartDto.productId, 10),
           price: addCartDto.price,
           quantity: addCartDto.quantity,
           totalAmount: addCartDto.price * addCartDto.quantity,
@@ -71,10 +82,10 @@ export class UsersService {
     }
   }
 
-  async buyProducts(user: PayloadJWTDto) {
+  async buyProducts(id: number) {
     const cart = await prisma.cart.findMany({
       where: {
-        userId: user.sub,
+        userId: id,
       },
     });
     if (!cart.length)
@@ -87,7 +98,7 @@ export class UsersService {
 
     const order = await prisma.order.create({
       data: {
-        userId: user.sub,
+        userId: id,
         date: now,
         totalAmount: totalAmount,
       },
@@ -106,15 +117,21 @@ export class UsersService {
       data: payloadOrderDetails,
     });
 
+    await prisma.cart.deleteMany({
+      where: {
+        userId: id,
+      },
+    });
+
     return {
       message: 'Successful order',
     };
   }
 
-  async findOneOrder(user: PayloadJWTDto, orderId: number) {
+  async findOneOrder(userId: number, orderId: number) {
     return await prisma.order.findFirst({
       where: {
-        userId: user.sub,
+        userId: userId,
         id: orderId,
       },
       include: {

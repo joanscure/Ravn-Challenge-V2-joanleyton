@@ -4,7 +4,7 @@ import { IsNumberString } from 'class-validator';
 export class AddCartDto {
   @ApiProperty()
   @IsNumberString()
-  productId: number;
+  productId: string;
 
   @ApiProperty({
     minimum: 1,

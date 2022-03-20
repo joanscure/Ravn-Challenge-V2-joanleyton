@@ -69,6 +69,7 @@ export class ProductsService {
     productName: string,
     paginationDto: PaginationDto,
   ) {
+    console.log('productName:>> ', productName);
     return await prisma.product.findMany({
       skip: paginationDto.page * paginationDto.itemsPerPage,
       take: paginationDto.itemsPerPage,
@@ -78,7 +79,7 @@ export class ProductsService {
         },
         active: true,
         name: {
-          contains: productName,
+          contains: productName.toLowerCase(),
           mode: 'insensitive',
         },
       },

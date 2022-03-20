@@ -18,7 +18,6 @@ import { Public } from '../utils/decorator/public.decorator';
 import { Role } from '../utils/enums/role.enum';
 import { ProductDto } from './dto/product.dto';
 import { Roles } from '../utils/decorator/roles.decorator';
-import { ProductoIdParamDto } from './dto/product-id-param.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -96,7 +95,7 @@ export class ProductsController {
     description: 'The record has been successfully updated.',
   })
   async update(
-    @Param() { id }: ProductoIdParamDto,
+    @Param("id", ParseIntPipe)  id : number,
     @Body() productDto: ProductDto,
   ) {
     return await this.productService.update(id, productDto);
@@ -110,7 +109,7 @@ export class ProductsController {
     status: 200,
     description: 'The record has been successfully deleted.',
   })
-  async remove(@Param() { id }: ProductoIdParamDto) {
+  async remove(@Param("id", ParseIntPipe) id: number) {
     return await this.productService.remove(id);
   }
 
@@ -122,7 +121,7 @@ export class ProductsController {
     status: 200,
     description: 'The record has been successfully disabled.',
   })
-  async disableProduct(@Param() { id }: ProductoIdParamDto) {
+  async disableProduct(@Param("id", ParseIntPipe)  id: number ) {
     return await this.productService.disableProduct(id);
   }
 
