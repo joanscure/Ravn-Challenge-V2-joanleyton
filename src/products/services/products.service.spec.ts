@@ -55,19 +55,14 @@ describe('Product module', () => {
   });
 
   describe('Find products by category', () => {
-    it('should throw error if category ID is not sent', async () => {
-      const categoryId = null;
-
-      await request(app.getHttpServer())
-        .get('/product/c/' + categoryId)
-        .expect(400);
-    });
     it('should return all the products in the category', async () => {
-      const categoryId = 1;
+      const category = await productService.createCategory();
+      const products = await productService.getByCategory(category.id, '', {
+        page: 0,
+        itemsPerPage: 10,
+      });
 
-      await request(app.getHttpServer())
-        .get('/product/c/' + categoryId)
-        .expect(200);
+      expect(products.length).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -84,7 +79,7 @@ describe('Product module', () => {
 
   describe('Create product', () => {
     it('should throw authentication error if token not send', async () => {
-      await request(app.getHttpServer()).post('/product').expect(401);
+      await request(app.getHttpServer()).post('/products').expect(401);
     });
 
     it('should throw error if required fields are not submitted', async () => {
@@ -122,7 +117,7 @@ describe('Product module', () => {
 
   describe('Update product', () => {
     it('should throw authentication error if token not send', async () => {
-      await request(app.getHttpServer()).patch('/product/1').expect(401);
+      await request(app.getHttpServer()).patch('/products/1').expect(401);
     });
 
     it('should throw error if product does not exist', async () => {
@@ -156,7 +151,7 @@ describe('Product module', () => {
 
   describe('Delete product', () => {
     it('should throw authentication error if token not send', async () => {
-      await request(app.getHttpServer()).delete('/product/1').expect(401);
+      await request(app.getHttpServer()).delete('/products/1').expect(401);
     });
 
     it('should throw error if product does not exist', async () => {
@@ -184,7 +179,9 @@ describe('Product module', () => {
 
   describe('Disable product', () => {
     it('should throw authentication error if token not send', async () => {
-      await request(app.getHttpServer()).put('/product/disable/1').expect(401);
+      await request(app.getHttpServer())
+        .put('/products/1/disabled')
+        .expect(401);
     });
 
     it('should throw error if product does not exist', async () => {

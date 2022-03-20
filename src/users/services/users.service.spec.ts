@@ -34,7 +34,7 @@ describe('User module', () => {
   describe('Show client orders', () => {
     it('should throw authentication error if token not send', async () => {
       await request(app.getHttpServer())
-        .get('/user/find-all-orders')
+        .get('/user/orders')
         .expect(401);
     });
 
@@ -85,7 +85,7 @@ describe('User module', () => {
 
   describe('Buy products', () => {
     it('should throw authentication error if token not send', async () => {
-      await request(app.getHttpServer()).get('/user/buy-products').expect(401);
+      await request(app.getHttpServer()).post('/user/buy-products').expect(401);
     });
      it('should throw  an exception when there are no products', async () => {
       try {

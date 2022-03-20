@@ -31,19 +31,12 @@ import { FilesUploadDto } from './dto/file-upload.dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
-@Controller('product')
+@Controller('products')
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
   @ApiTags('User')
-  @Get('find/:id')
-  @Public()
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.productService.findOne(id);
-  }
-
-  @ApiTags('User')
-  @Get('all')
+  @Get('')
   @Public()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'itemsPerPage', required: false })
@@ -56,7 +49,14 @@ export class ProductsController {
   }
 
   @ApiTags('User')
-  @Get('c/:categoryId')
+  @Get(':id')
+  @Public()
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.productService.findOne(id);
+  }
+
+  @ApiTags('User')
+  @Get('category/:categoryId')
   @Public()
   @ApiQuery({ name: 'productName', required: false })
   @ApiQuery({ name: 'itemsPerPage', required: false })
@@ -95,7 +95,7 @@ export class ProductsController {
     description: 'The record has been successfully updated.',
   })
   async update(
-    @Param("id", ParseIntPipe)  id : number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() productDto: ProductDto,
   ) {
     return await this.productService.update(id, productDto);
@@ -109,24 +109,24 @@ export class ProductsController {
     status: 200,
     description: 'The record has been successfully deleted.',
   })
-  async remove(@Param("id", ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.productService.remove(id);
   }
 
   @ApiTags('Manager')
   @ApiBearerAuth()
   @Roles(Role.Admin)
-  @Put('disable/:id')
+  @Put(':id/disabled')
   @ApiResponse({
     status: 200,
     description: 'The record has been successfully disabled.',
   })
-  async disableProduct(@Param("id", ParseIntPipe)  id: number ) {
+  async disableProduct(@Param('id', ParseIntPipe) id: number) {
     return await this.productService.disableProduct(id);
   }
 
   @ApiTags('Manager')
-  @Post('uploads/:productId')
+  @Post(':productId/upload-images')
   @ApiBearerAuth()
   @Roles(Role.Admin)
   @UseInterceptors(

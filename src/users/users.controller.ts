@@ -20,7 +20,7 @@ export class UsersController {
   @ApiTags('Client')
   @ApiBearerAuth()
   @ApiQuery({ name: 'productId' })
-  @Get('like-product/:productId')
+  @Get(':productId/like')
   async likeProduct(
     @Request() { user },
     @Query('productId', ParseIntPipe) productId: number,
@@ -37,7 +37,7 @@ export class UsersController {
 
   @ApiTags('Client')
   @ApiBearerAuth()
-  @Get('buy-products')
+  @Post('buy-products')
   async buyProducts(@Request() { user }) {
     return await this.usersServices.buyProducts(user.userId);
   }
@@ -45,7 +45,7 @@ export class UsersController {
   @ApiTags('Client')
   @ApiBearerAuth()
   @ApiQuery({ name: 'orderId' })
-  @Get('find-my-order/:orderId')
+  @Get('order/:orderId')
   async findMyOrder(
     @Request() { user },
     @Query('orderId', ParseIntPipe) orderId: number,
@@ -56,7 +56,7 @@ export class UsersController {
   @ApiTags('Manager')
   @ApiBearerAuth()
   @Roles(Role.Admin)
-  @Get('find-all-orders')
+  @Get('orders')
   async findAllOrders() {
     return await this.usersServices.findAllOrders();
   }
