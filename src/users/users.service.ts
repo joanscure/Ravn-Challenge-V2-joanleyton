@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cart } from '@prisma/client';
-import { PayloadJWTDto } from '../jwt/dto/payload-jwt.dto';
 import { AddCartDto } from './dto/add-cart.dto';
 import { prisma } from '../prisma/prisma';
 import { ProductsService } from 'src/products/products.service';

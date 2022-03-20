@@ -2,7 +2,6 @@ import { ConflictException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtGlobalModule } from '../../jwt/jwt.module';
 import * as request from 'supertest';
-import { Role } from '../../utils/enums/role.enum';
 import { UsersService } from '../users.service';
 import { UsersController } from '../users.controller';
 
@@ -43,7 +42,7 @@ describe('User module', () => {
     it('should return the product add to cart', async () => {
       jest.spyOn(usersService, 'registerToCart').mockImplementation(() => null);
       const registerToCart = await usersService.addToCart(0, {
-        productId: 0,
+        productId: '0',
         quantity: 0,
         price: 0,
       });
@@ -58,11 +57,7 @@ describe('User module', () => {
     });
     it('should throw  an exception when there are no products', async () => {
       try {
-        await usersService.buyProducts({
-          sub: 0,
-          username: '',
-          role: Role.Admin,
-        });
+        await usersService.buyProducts(0);
       } catch (err) {
         expect(err).toBeInstanceOf(ConflictException);
         expect(err.message).toBe('There are NO items in the cart');

@@ -41,7 +41,7 @@ model Product {
   availableStock Int
   description String?
   active Boolean @default(true)
-  category Category @relation(fields: [categoryId] , references: [id])
+  category Category @relation(fields: [categoryId] , references: [id], onDelete: Cascade)
   categoryId Int @map("category_id")
   images ProductImage[]
   reactions UserReaction[]
@@ -72,7 +72,7 @@ enum SizeProduct{
 model ProductImage {
   id Int @id @default(autoincrement())
   urlImage String @map("url_image")
-  product Product @relation(fields: [productId] , references: [id])
+  product Product @relation(fields: [productId] , references: [id], onDelete: Cascade)
   productId Int @map("product_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
@@ -81,7 +81,7 @@ model ProductImage {
 
 model UserReaction{
   id Int @id @default(autoincrement())
-  product Product @relation(fields: [productId] , references: [id])
+  product Product @relation(fields: [productId] , references: [id], onDelete: Cascade)
   productId Int @map("product_id")
   user User @relation(fields: [userId], references: [id])
   userId Int @map("user_id")
@@ -92,9 +92,9 @@ model UserReaction{
 
 model Cart {
   id Int @id @default(autoincrement())
-  product Product @relation(fields: [productId] , references: [id])
+  product Product @relation(fields: [productId] , references: [id], onDelete: Cascade)
   productId Int @map("product_id")
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int @map("user_id")
   price Float
   quantity Int
@@ -106,7 +106,7 @@ model Cart {
 
 model Order {
   id Int @id @default(autoincrement())
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int @map("user_id")
   date DateTime
   totalAmount Float @map("total_amount")
@@ -118,12 +118,12 @@ model Order {
 
 model OrderDetail {
   id Int @id @default(autoincrement())
-  product Product @relation(fields: [productId] , references: [id])
+  product Product @relation(fields: [productId] , references: [id], onDelete: Cascade)
   productId Int @map("product_id")
   price Float
   quantity Int
   subtotal Float
-  order Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId Int @map("order_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")

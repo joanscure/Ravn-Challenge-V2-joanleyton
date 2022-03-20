@@ -1,15 +1,14 @@
-import faker from '@faker-js/faker';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { Role } from 'src/utils/enums/role.enum';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  for (let i = 0; i < 10; i++) {
+  const category = ['shorts','skirts','pants'];
+  for (let i = 0; i < 3; i++) {
     await prisma.category.create({
       data: {
-        name: faker.commerce.productMaterial(),
+        name: category[i],
       },
     });
   }
@@ -20,7 +19,7 @@ async function main() {
       lastName: 'Leyton',
       username: 'admin',
       password: await bcrypt.hash('admin123', 10),
-      role: Role.Admin,
+      role: 'ADMIN',
       email: 'joan.leyton08@gmail.com',
     },
   });
