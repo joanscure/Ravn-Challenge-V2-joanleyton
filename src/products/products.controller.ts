@@ -128,9 +128,8 @@ export class ProductsController {
 
   @ApiTags('Manager')
   @Post('uploads/:productId')
-  //@ApiBearerAuth()
-  //@Roles(Role.Admin)
-  @Public()
+  @ApiBearerAuth()
+  @Roles(Role.Admin)
   @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({

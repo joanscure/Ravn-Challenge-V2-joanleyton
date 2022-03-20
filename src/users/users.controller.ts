@@ -3,11 +3,11 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../utils/decorator/roles.decorator';
 import { Role } from '../utils/enums/role.enum';
 import { AddCartDto } from './dto/add-cart.dto';
-import { UsersServices } from './users.services';
+import { UsersService } from './users.service';
 
 @Controller('user')
 export class UsersController {
-  constructor(private readonly usersServices: UsersServices) {}
+  constructor(private readonly usersServices: UsersService) {}
 
   @ApiTags('Client')
   @ApiBearerAuth()

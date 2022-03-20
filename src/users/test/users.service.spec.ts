@@ -3,21 +3,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtGlobalModule } from '../../jwt/jwt.module';
 import * as request from 'supertest';
 import { Role } from '../../utils/enums/role.enum';
-import { UsersServices } from '../users.services';
+import { UsersService } from '../users.service';
 import { UsersController } from '../users.controller';
 
 describe('User module', () => {
-  let usersService: UsersServices;
+  let usersService: UsersService;
   let app: INestApplication;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [JwtGlobalModule],
-      providers: [UsersServices],
+      providers: [UsersService],
       controllers: [UsersController],
     }).compile();
 
-    usersService = module.get<UsersServices>(UsersServices);
+    usersService = module.get<UsersService>(UsersService);
     app = module.createNestApplication();
     await app.init();
   });

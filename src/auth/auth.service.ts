@@ -17,9 +17,7 @@ import { prisma } from '../prisma/prisma';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   async login(request: LoginDto) {
     const user = await this.findUser(request);

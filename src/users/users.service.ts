@@ -5,8 +5,7 @@ import { AddCartDto } from './dto/add-cart.dto';
 import { prisma } from '../prisma/prisma';
 
 @Injectable()
-export class UsersServices {
-
+export class UsersService {
   async likeProduct(id: number, productId: number) {
     const alreadyReacted = await this.existsReaction(id, productId);
 
