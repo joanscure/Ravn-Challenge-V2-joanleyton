@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaModule } from '../../prisma/prisma.module';
 import { JwtGlobalModule } from '../../jwt/jwt.module';
 import * as request from 'supertest';
 import { ProductsService } from '../products.service';
@@ -12,7 +11,7 @@ import { ProductsController } from '../products.controller';
 import { ProductsFactory } from '../factories/products.factory';
 import ProductAlreadyExistsException from '../exceptions/product-already-exists.exception';
 import { ProductNotFoundException } from '../exceptions/product-not-found.exception';
-import faker, { Faker } from '@faker-js/faker';
+import faker from '@faker-js/faker';
 
 describe('Product module', () => {
   let productService: ProductsService;
@@ -21,7 +20,7 @@ describe('Product module', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule, JwtGlobalModule],
+      imports: [JwtGlobalModule],
       providers: [ProductsService],
       controllers: [ProductsController],
     }).compile();
@@ -139,9 +138,14 @@ describe('Product module', () => {
     });
     it('Should return the updated product', async () => {
       const newProduct = await productFactory.make();
+      const now = new Date();
 
       const product = await productService.create(newProduct);
-      newProduct.name = faker.commerce.product.name;
+      newProduct.name =
+        faker.commerce.product.name +
+        now.getDay() +
+        now.getFullYear() +
+        now.getSeconds();
 
       const productUpdated = await productService.update(
         product.id,

@@ -3,7 +3,6 @@ import { AuthService } from '../auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { INestApplication, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaModule } from '../../prisma/prisma.module';
 import { JwtGlobalModule } from '../../jwt/jwt.module';
 import { faker } from '@faker-js/faker';
 import { UsersFactory } from '../../users/factories/users.factory';
@@ -23,7 +22,7 @@ describe('Auth module', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule, JwtGlobalModule],
+      imports: [JwtGlobalModule],
       providers: [AuthService],
       controllers: [AuthController],
     }).compile();

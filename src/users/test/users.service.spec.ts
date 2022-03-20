@@ -1,15 +1,6 @@
-import {
-  ConflictException,
-  INestApplication,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaModule } from '../../prisma/prisma.module';
 import { JwtGlobalModule } from '../../jwt/jwt.module';
-import { faker } from '@faker-js/faker';
-import { UsersFactory } from '../../users/factories/users.factory';
-import * as bcrypt from 'bcrypt';
-import { User } from '@prisma/client';
 import * as request from 'supertest';
 import { Role } from '../../utils/enums/role.enum';
 import { UsersServices } from '../users.services';
@@ -17,21 +8,16 @@ import { UsersController } from '../users.controller';
 
 describe('User module', () => {
   let usersService: UsersServices;
-  let userController: UsersController;
-  let userFactory: UsersFactory;
   let app: INestApplication;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule, JwtGlobalModule],
+      imports: [JwtGlobalModule],
       providers: [UsersServices],
       controllers: [UsersController],
     }).compile();
 
     usersService = module.get<UsersServices>(UsersServices);
-    userController = module.get<UsersController>(UsersController);
-    userFactory = new UsersFactory();
-
     app = module.createNestApplication();
     await app.init();
   });

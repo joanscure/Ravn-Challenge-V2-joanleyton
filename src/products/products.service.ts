@@ -4,19 +4,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaService } from '../prisma/prisma.services';
 import { PaginationDto } from './dto/pagination.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
 import { ProductDto } from './dto/product.dto';
 import ProductAlreadyExistsException from './exceptions/product-already-exists.exception';
 import { ProductNotFoundException } from './exceptions/product-not-found.exception';
+import { prisma } from '../prisma/prisma';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prismaService: PrismaService) {}
-
   async findOne(productId: number) {
-    const product = await this.prismaService.product.findFirst({
+    const product = await prisma.product.findFirst({
       where: {
         id: productId,
         active: true,
@@ -33,7 +31,7 @@ export class ProductsService {
   }
 
   async existProduct(productId: number): Promise<boolean> {
-    const product = await this.prismaService.product.findFirst({
+    const product = await prisma.product.findFirst({
       where: {
         id: productId,
       },
@@ -45,7 +43,7 @@ export class ProductsService {
   async existsOneByName(productName: string): Promise<boolean> {
     if (!productName.length) return false;
 
-    const product = await this.prismaService.product.findFirst({
+    const product = await prisma.product.findFirst({
       where: {
         name: productName,
       },
@@ -55,7 +53,7 @@ export class ProductsService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const arrayProducts = await this.prismaService.product.findMany({
+    const arrayProducts = await prisma.product.findMany({
       skip: paginationDto.page * paginationDto.itemsPerPage,
       take: paginationDto.itemsPerPage,
       include: {
@@ -63,7 +61,7 @@ export class ProductsService {
         category: true,
       },
     });
-    return  arrayProducts;
+    return arrayProducts;
   }
 
   async getByCategory(
@@ -71,7 +69,7 @@ export class ProductsService {
     productName: string,
     paginationDto: PaginationDto,
   ) {
-    return await this.prismaService.product.findMany({
+    return await prisma.product.findMany({
       skip: paginationDto.page * paginationDto.itemsPerPage,
       take: paginationDto.itemsPerPage,
       where: {
@@ -98,7 +96,7 @@ export class ProductsService {
     if (existsProduct) throw new ProductAlreadyExistsException('name');
 
     try {
-      return await this.prismaService.product.create({
+      return await prisma.product.create({
         data: payload,
       });
     } catch (err) {
@@ -112,7 +110,7 @@ export class ProductsService {
     if (!product) throw new ProductNotFoundException(productDto.name);
 
     try {
-      const productUpdate = await this.prismaService.product.update({
+      const productUpdate = await prisma.product.update({
         where: {
           id: productId,
         },
@@ -139,7 +137,7 @@ export class ProductsService {
     if (!product) throw new ProductNotFoundException();
 
     try {
-      const productDelete = this.prismaService.product.delete({
+      const productDelete = prisma.product.delete({
         where: {
           id: productId,
         },
@@ -157,7 +155,7 @@ export class ProductsService {
     if (!product) throw new ProductNotFoundException();
 
     try {
-      const productDisabled = this.prismaService.product.update({
+      const productDisabled = prisma.product.update({
         where: {
           id: productId,
         },
@@ -181,7 +179,7 @@ export class ProductsService {
     });
 
     try {
-      return await this.prismaService.productImage.createMany({
+      return await prisma.productImage.createMany({
         data: productsImages,
       });
     } catch (err) {

@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.services';
 import { LoginDto } from './dto/login.dto';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
@@ -14,11 +13,11 @@ import { Role } from '../utils/enums/role.enum';
 import { PayloadJWTDto } from '../jwt/dto/payload-jwt.dto';
 import WrongPasswordException from './exceptions/user-not-found.exception';
 import { plainToInstance } from 'class-transformer';
+import { prisma } from '../prisma/prisma';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -71,7 +70,7 @@ export class AuthService {
         role: role,
       };
 
-      const user = await this.prismaService.user.create({
+      const user = await prisma.user.create({
         data: payload,
       });
 
@@ -82,7 +81,7 @@ export class AuthService {
   }
 
   async checkUserExistsByEmail(email: string): Promise<boolean> {
-    const user = await this.prismaService.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
         email: email,
       },
@@ -93,7 +92,7 @@ export class AuthService {
   }
 
   async checkUserExistsByUsername(username: string): Promise<boolean> {
-    const user = await this.prismaService.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
         username: username,
       },
@@ -104,7 +103,7 @@ export class AuthService {
   }
 
   async findUser(loginDto: LoginDto) {
-    return await this.prismaService.user.findFirst({
+    return await prisma.user.findFirst({
       where: {
         username: loginDto.username,
       },
@@ -112,7 +111,7 @@ export class AuthService {
   }
 
   async updateToken(user: User, token: string): Promise<void> {
-    await this.prismaService.user.update({
+    await prisma.user.update({
       where: {
         id: user.id,
       },
