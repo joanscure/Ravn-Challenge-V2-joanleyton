@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query, Request } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Roles } from 'src/utils/decorator/roles.decorator';
-import { Role } from 'src/utils/enums/role.enum';
+import { Roles } from '../utils/decorator/roles.decorator';
+import { Role } from '../utils/enums/role.enum';
 import { AddCartDto } from './dto/add-cart.dto';
 import { UsersServices } from './users.services';
 
@@ -21,7 +21,7 @@ export class UsersController {
   @ApiBearerAuth()
   @Post('add-to-cart')
   async addToCart(@Request() { user }, @Body() addCartDto: AddCartDto) {
-    return await this.usersServices.addToCart(user, addCartDto);
+    return await this.usersServices.addToCart(user.sub, addCartDto);
   }
 
   @ApiTags('Client')

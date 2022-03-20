@@ -8,7 +8,7 @@ export class ProductsFactory {
   async make(params?: ProductDto) {
     return {
       //id: faker.datatype.number(),
-      name: params?.name ?? faker.name.jobDescriptor(),
+      name: params?.name ?? faker.commerce.productName(),
       size:
         params?.size ??
         faker.random.arrayElement([

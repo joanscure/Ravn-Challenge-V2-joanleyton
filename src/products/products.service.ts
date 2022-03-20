@@ -152,7 +152,7 @@ export class ProductsService {
   }
 
   async disableProduct(productId: number) {
-    const product = await this.findOne(productId);
+    const product = await this.existProduct(productId);
 
     if (!product) throw new ProductNotFoundException();
 

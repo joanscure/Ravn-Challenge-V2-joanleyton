@@ -1,20 +1,15 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { Cart } from '@prisma/client';
-import { PayloadJWTDto } from 'src/jwt/dto/payload-jwt.dto';
-import { PrismaService } from 'src/prisma/prisma.services';
+import { PayloadJWTDto } from '../jwt/dto/payload-jwt.dto';
+import { PrismaService } from '../prisma/prisma.services';
 import { AddCartDto } from './dto/add-cart.dto';
 
 @Injectable()
 export class UsersServices {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async likeProduct(user: PayloadJWTDto, productId: number) {
-    const alreadyReacted = this.prismaService.userReaction.findFirst({
-      where: {
-        productId,
-        userId: user.sub,
-      },
-    });
+  async likeProduct(id: number, productId: number) {
+    const alreadyReacted = await this.existsReaction(id, productId);
 
     if (alreadyReacted) {
       throw new ConflictException(
@@ -25,19 +20,37 @@ export class UsersServices {
     const userReaction = this.prismaService.userReaction.create({
       data: {
         productId: productId,
-        userId: user.sub,
+        userId: id,
       },
     });
     return userReaction;
   }
+  async existsReaction(id: number, productId: number) {
+    const record = await this.prismaService.userReaction.findFirst({
+      where: {
+        productId: productId,
+        userId: id,
+      },
+    });
+    return !!record;
+  }
 
-  async addToCart(user: PayloadJWTDto, addCartDto: AddCartDto) {
+  async addToCart(id: number, addCartDto: AddCartDto) {
     const cartProduct = await this.prismaService.cart.findFirst({
       where: {
-        userId: user.sub,
+        userId: id,
         productId: addCartDto.productId,
       },
     });
+
+    await this.registerToCart(id, cartProduct, addCartDto);
+
+    return {
+      message: 'Product has been added to your cart',
+    };
+  }
+
+  async registerToCart(id: number, cartProduct: Cart, addCartDto?: AddCartDto) {
     if (cartProduct) {
       cartProduct.quantity += addCartDto.quantity;
       cartProduct.totalAmount = cartProduct.quantity * cartProduct.price;
@@ -50,7 +63,7 @@ export class UsersServices {
     } else {
       await this.prismaService.cart.create({
         data: {
-          userId: user.sub,
+          userId: id,
           productId: addCartDto.productId,
           price: addCartDto.price,
           quantity: addCartDto.quantity,
@@ -58,10 +71,6 @@ export class UsersServices {
         },
       });
     }
-
-    return {
-      message: 'Product has been added to your cart',
-    };
   }
 
   async buyProducts(user: PayloadJWTDto) {
@@ -70,6 +79,8 @@ export class UsersServices {
         userId: user.sub,
       },
     });
+    if (!cart.length)
+      throw new ConflictException('There are NO items in the cart');
     const now = new Date();
     const totalAmount: number = cart.reduce(
       (sum: number, element: Cart) => sum + element.totalAmount,
@@ -110,20 +121,9 @@ export class UsersServices {
       },
       include: {
         details: {
-          select: {
-            productId: true,
-            price: true,
-            quantity: true,
-            subtotal: true,
-          },
           include: {
             product: {
-              select: {
-                name: true,
-                size: true,
-                description: true,
-              },
-              include: {
+               include: {
                 images: true,
               },
             },
@@ -138,19 +138,8 @@ export class UsersServices {
       include: {
         user: true,
         details: {
-          select: {
-            productId: true,
-            price: true,
-            quantity: true,
-            subtotal: true,
-          },
           include: {
             product: {
-              select: {
-                name: true,
-                size: true,
-                description: true,
-              },
               include: {
                 images: true,
               },

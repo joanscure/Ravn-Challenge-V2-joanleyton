@@ -16,7 +16,6 @@ import faker, { Faker } from '@faker-js/faker';
 
 describe('Product module', () => {
   let productService: ProductsService;
-  let productController: ProductsController;
   let app: INestApplication;
   let productFactory: ProductsFactory;
 
@@ -27,7 +26,6 @@ describe('Product module', () => {
       controllers: [ProductsController],
     }).compile();
 
-    productController = module.get<ProductsController>(ProductsController);
     productService = module.get<ProductsService>(ProductsService);
 
     app = module.createNestApplication();
@@ -139,20 +137,18 @@ describe('Product module', () => {
         expect(err).toBeInstanceOf(ProductNotFoundException);
       }
     });
-    it('hould return the updated product', async () => {
+    it('Should return the updated product', async () => {
       const newProduct = await productFactory.make();
-      const newName = newProduct.name;
-      newProduct.name = faker.name.jobType();
 
       const product = await productService.create(newProduct);
+      newProduct.name = faker.commerce.product.name;
 
-      newProduct.name = newName;
       const productUpdated = await productService.update(
         product.id,
         newProduct,
       );
 
-      expect(productUpdated.name).toBe(newName);
+      expect(productUpdated.name).toBe(newProduct.name);
     });
   });
 
@@ -186,7 +182,7 @@ describe('Product module', () => {
 
   describe('Disable product', () => {
     it('should throw authentication error if token not send', async () => {
-      await request(app.getHttpServer()).put('/product/1').expect(401);
+      await request(app.getHttpServer()).put('/product/disable/1').expect(401);
     });
 
     it('should throw error if product does not exist', async () => {
@@ -197,7 +193,7 @@ describe('Product module', () => {
           .mockImplementation(() => result);
         await productService.disableProduct(0);
       } catch (err) {
-        expect(err).toBeInstanceOf(ProductNotFoundException);
+        expect(err).toBeInstanceOf(NotFoundException);
       }
     });
     it('should return the disabled product', async () => {
