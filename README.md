@@ -55,5 +55,5 @@ $ npm run start:dev
 
 # Then go to the browser to the address localhost:3000/api
 
-![alt text](https://github.com/joanscure/Ravn-Challenge-V2-joanleyton/blob/main/docs/swagger.png?raw=true)
 ```
+![alt text](https://github.com/joanscure/Ravn-Challenge-V2-joanleyton/blob/main/docs/swagger.png?raw=true)
