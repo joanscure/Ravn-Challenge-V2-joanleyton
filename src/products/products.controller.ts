@@ -13,7 +13,7 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
+import { ProductsService } from './services/products.service';
 import { Public } from '../utils/decorator/public.decorator';
 import { Role } from '../utils/enums/role.enum';
 import { ProductDto } from './dto/product.dto';

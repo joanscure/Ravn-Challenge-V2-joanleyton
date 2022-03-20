@@ -6,7 +6,7 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtGlobalModule } from '../../jwt/jwt.module';
 import * as request from 'supertest';
-import { ProductsService } from '../products.service';
+import { ProductsService } from '../services/products.service';
 import { ProductsController } from '../products.controller';
 import { ProductsFactory } from '../factories/products.factory';
 import ProductAlreadyExistsException from '../exceptions/product-already-exists.exception';
@@ -110,7 +110,8 @@ describe('Product module', () => {
       }
     });
     it('you should return the registered product', async () => {
-      const newProduct = await productFactory.make();
+      const category = await productService.createCategory();
+      const newProduct = await productFactory.make(category.id);
       const result = new Promise<boolean>((resolve) => resolve(false));
       jest
         .spyOn(productService, 'existsOneByName')
@@ -137,15 +138,12 @@ describe('Product module', () => {
       }
     });
     it('Should return the updated product', async () => {
-      const newProduct = await productFactory.make();
+      const category = await productService.createCategory();
+      const newProduct = await productFactory.make(category.id);
       const now = new Date();
 
       const product = await productService.create(newProduct);
-      newProduct.name =
-        faker.commerce.product.name +
-        now.getDay() +
-        now.getFullYear() +
-        now.getSeconds();
+      newProduct.name = faker.commerce.product.name + now.getTime();
 
       const productUpdated = await productService.update(
         product.id,
@@ -190,7 +188,10 @@ describe('Product module', () => {
     });
 
     it('should throw error if product does not exist', async () => {
+      const category = await productService.createCategory();
       const result = new Promise<boolean>((resolve) => resolve(false));
+      const newProduct = await productFactory.make(category.id);
+      await productService.create(newProduct);
       try {
         jest
           .spyOn(productService, 'existProduct')
@@ -201,7 +202,8 @@ describe('Product module', () => {
       }
     });
     it('should return the disabled product', async () => {
-      const newProduct = await productFactory.make();
+      const category = await productService.createCategory();
+      const newProduct = await productFactory.make(category.id);
       const product = await productService.create(newProduct);
 
       const productUpdated = await productService.disableProduct(product.id);

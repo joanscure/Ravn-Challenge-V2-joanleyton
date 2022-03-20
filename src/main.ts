@@ -12,7 +12,7 @@ async function bootstrap() {
   //use Swagger
   const config = new DocumentBuilder()
     .setTitle('Fashion Store')
-    .setDescription('uno')
+    .setDescription('Route documentation for Fashion Store')
     .addBearerAuth()
     .setVersion('1.0')
     .build();

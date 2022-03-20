@@ -5,15 +5,15 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { LoginDto } from './dto/login.dto';
-import { UserDto } from './dto/user.dto';
+import { LoginDto } from '../dto/login.dto';
+import { UserDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import UserAlreadyExistsException from './exceptions/user-already-exists.exception';
-import { Role } from '../utils/enums/role.enum';
-import { PayloadJWTDto } from '../jwt/dto/payload-jwt.dto';
-import WrongPasswordException from './exceptions/user-not-found.exception';
+import UserAlreadyExistsException from '../exceptions/user-already-exists.exception';
+import { Role } from '../../utils/enums/role.enum';
+import { PayloadJWTDto } from '../../jwt/dto/payload-jwt.dto';
+import WrongPasswordException from '../exceptions/user-not-found.exception';
 import { plainToInstance } from 'class-transformer';
-import { prisma } from '../prisma/prisma';
+import { prisma } from '../../prisma/prisma';
 
 @Injectable()
 export class AuthService {

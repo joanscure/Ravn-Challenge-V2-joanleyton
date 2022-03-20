@@ -5,7 +5,7 @@ import { SizeProduct } from '../enums/size-product.enum';
 
 @Injectable()
 export class ProductsFactory {
-  async make(params?: ProductDto) {
+  async make(categoryId?: number, params?: ProductDto) {
     return {
       //id: faker.datatype.number(),
       name: params?.name ?? faker.commerce.productName(),
@@ -21,7 +21,7 @@ export class ProductsFactory {
       availableStock:
         params?.availableStock ?? faker.datatype.number({ min: 0 }),
       description: params?.description ?? faker.random.words(),
-      categoryId: params?.categoryId ?? faker.random.arrayElement([1, 2, 3]),
+      categoryId: categoryId ?? faker.random.arrayElement([1, 2, 3]),
       createdAt: faker.date.past(),
       updatedAt: faker.date.past(),
     };

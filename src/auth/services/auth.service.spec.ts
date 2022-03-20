@@ -1,5 +1,5 @@
 import { AuthController } from '../auth.controller';
-import { AuthService } from '../auth.service';
+import { AuthService } from './auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { INestApplication, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';

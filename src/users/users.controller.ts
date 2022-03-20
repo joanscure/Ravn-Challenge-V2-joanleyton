@@ -11,7 +11,7 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../utils/decorator/roles.decorator';
 import { Role } from '../utils/enums/role.enum';
 import { AddCartDto } from './dto/add-cart.dto';
-import { UsersService } from './users.service';
+import { UsersService } from './services/users.service';
 
 @Controller('user')
 export class UsersController {

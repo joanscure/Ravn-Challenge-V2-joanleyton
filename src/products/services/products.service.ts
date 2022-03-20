@@ -4,12 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PaginationDto } from './dto/pagination.dto';
-import { ProductResponseDto } from './dto/product-response.dto';
-import { ProductDto } from './dto/product.dto';
-import ProductAlreadyExistsException from './exceptions/product-already-exists.exception';
-import { ProductNotFoundException } from './exceptions/product-not-found.exception';
-import { prisma } from '../prisma/prisma';
+import { PaginationDto } from '../dto/pagination.dto';
+import { ProductResponseDto } from '../dto/product-response.dto';
+import { ProductDto } from '../dto/product.dto';
+import ProductAlreadyExistsException from '../exceptions/product-already-exists.exception';
+import { ProductNotFoundException } from '../exceptions/product-not-found.exception';
+import { prisma } from '../../prisma/prisma';
+import faker from '@faker-js/faker';
 
 @Injectable()
 export class ProductsService {
@@ -69,7 +70,6 @@ export class ProductsService {
     productName: string,
     paginationDto: PaginationDto,
   ) {
-    console.log('productName:>> ', productName);
     return await prisma.product.findMany({
       skip: paginationDto.page * paginationDto.itemsPerPage,
       take: paginationDto.itemsPerPage,
@@ -186,5 +186,16 @@ export class ProductsService {
     } catch (err) {
       throw new InternalServerErrorException(err.message);
     }
+  }
+  async createCategory() {
+    const category = prisma.category.findFirst();
+
+    if (!category)
+      return await prisma.category.create({
+        data: {
+          name: 'randon_' + faker.name.jobDescriptor(),
+        },
+      });
+    return category;
   }
 }

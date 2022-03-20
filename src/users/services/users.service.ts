@@ -4,9 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cart } from '@prisma/client';
-import { AddCartDto } from './dto/add-cart.dto';
-import { prisma } from '../prisma/prisma';
-import { ProductsService } from 'src/products/products.service';
+import { AddCartDto } from '../dto/add-cart.dto';
+import { prisma } from '../../prisma/prisma';
+import { ProductsService } from '../../products/services/products.service';
+import faker from '@faker-js/faker';
 
 @Injectable()
 export class UsersService {
@@ -88,7 +89,7 @@ export class UsersService {
       },
     });
     if (!cart.length)
-      throw new ConflictException('There are NO items in the cart');
+      throw new ConflictException('There are no items in the cart');
     const now = new Date();
     const totalAmount: number = cart.reduce(
       (sum: number, element: Cart) => sum + element.totalAmount,
@@ -128,7 +129,7 @@ export class UsersService {
   }
 
   async findOneOrder(userId: number, orderId: number) {
-    return await prisma.order.findFirst({
+    const order = await prisma.order.findFirst({
       where: {
         userId: userId,
         id: orderId,
@@ -145,6 +146,29 @@ export class UsersService {
         },
       },
     });
+    if (!order) throw new NotFoundException('Order not found');
+
+    return order;
+  }
+  async getAnyUser() {
+    const user = await prisma.user.findFirst();
+    if (!user)
+      return await prisma.user.create({
+        data: {
+          username: faker.internet.userName(),
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName(),
+          password: faker.internet.password(6),
+          email: faker.internet.email(),
+          role: 'ADMIN',
+        },
+      });
+    return user;
+  }
+
+  async getAnyOrder() {
+    const order = await prisma.order.findFirst();
+    return order;
   }
 
   async findAllOrders() {

@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '../utils/decorator/public.decorator';
 import { Roles } from '../utils/decorator/roles.decorator';
 import { Role } from '../utils/enums/role.enum';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { LoginDto } from './dto/login.dto';
 import { UserDto } from './dto/user.dto';
 
