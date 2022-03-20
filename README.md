@@ -1,6 +1,7 @@
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API with Nestjs
+
 
 ## Installation
 
@@ -33,3 +34,22 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Migrations
+
+```bash
+# run migratons
+$ npx prisma migrate dev
+
+# run seeders
+$ npx prisma seed
+```
+
+## Swagger
+
+# First run the application with
+$ npm run start:dev
+
+#Then go to the browser to the address localhost:3000/api
+
+![alt text](https://github.com//joanscure//Ravn-Challenge-V2-joanleyton//api/main/swagger.png?raw=true)
