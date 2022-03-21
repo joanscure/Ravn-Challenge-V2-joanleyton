@@ -3,9 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { PaginationDto } from '../dto/pagination.dto';
-import { ProductResponseDto } from '../dto/product-response.dto';
 import { ProductDto } from '../dto/product.dto';
 import ProductAlreadyExistsException from '../exceptions/product-already-exists.exception';
 import { ProductNotFoundException } from '../exceptions/product-not-found.exception';
@@ -28,7 +26,7 @@ export class ProductsService {
 
     if (!product) throw new NotFoundException('Product not found');
 
-    return plainToInstance(ProductResponseDto, product);
+    return product;
   }
 
   async existProduct(productId: number): Promise<boolean> {

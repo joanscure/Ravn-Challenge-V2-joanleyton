@@ -35,6 +35,7 @@ describe('Product module', () => {
   describe('Find one product', () => {
     it('should throw an exception if it is not found', async () => {
       const productId = 0;
+
       try {
         await productService.findOne(productId);
       } catch (err) {
@@ -44,13 +45,10 @@ describe('Product module', () => {
     });
 
     it('should return the product found', async () => {
-      const productId = 1;
-      try {
-        await productService.findOne(productId);
-      } catch (err) {
-        expect(err).toBeInstanceOf(NotFoundException);
-        expect(err.message).toBe('Product not found');
-      }
+      const category = await productService.createCategory();
+      const newProduct = await productFactory.make(category.id);
+      const product = await productService.create(newProduct);
+      expect(await productService.findOne(product.id)).toBeTruthy();
     });
   });
 
