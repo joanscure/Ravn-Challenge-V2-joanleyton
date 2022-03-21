@@ -38,11 +38,14 @@ $ npm run test:cov
 ## Migrations
 
 ```bash
+# create a database and define in the .env file the data indicated. 
+$ DATABASE_URL="postgresql://USERNAME:PASSWORD@HOST:PORT/DATABASENAME?schema=public"
+
 # run migratons
 $ npx prisma migrate dev
 
 # run seeders
-$ npx prisma seed
+$ npx prisma db seed
 ```
 
 ## Swagger
