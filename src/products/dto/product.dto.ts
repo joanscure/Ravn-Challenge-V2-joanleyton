@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsNumberString,
   IsString,
   Min,
@@ -40,6 +41,6 @@ export class ProductDto {
   description?: string;
 
   @ApiProperty()
-  @IsNumberString()
+  @IsNumber()
   categoryId: number;
 }
